@@ -213,13 +213,40 @@ function treeMaker(target, upsidedown, total, height) {
   }, 200)
 }
 
+function div(cls, inner) {
+  var node = document.createElement('div')
+  node.className = cls
+  if (inner) node.innerHTML = inner
+  return node
+}
+
+function container() {
+  var node = div('viz')
+  var total = div('total')
+  var frontier = div('frontier')
+  node.appendChild(total)
+  node.appendChild(frontier)
+  return {
+    main: node,
+    frontier: frontier,
+    total: total,
+  }
+}
+
 function bidirectional() {
   resetFrontier()
   resetGrandTotal()
-  treeMaker('#down', true, 15)
+  var nodes = container()
+  var down = div('down')
+  var up = div('up')
+  nodes.main.appendChild(up)
+  nodes.main.appendChild(down)
+  treeMaker(down, true, 15)
   setTimeout(function () {
-    treeMaker('#up', false, 15)
+    treeMaker(up, false, 15)
   }, 100)
+
+  document.body.appendChild(nodes.main)
 }
 
 function unidirectional() {
