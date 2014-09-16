@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+.node {
+  cursor: pointer;
+}
+
+.node circle {
+  fill: #fff;
+  stroke: steelblue;
+  stroke-width: 1.5px;
+}
+
+.node text {
+  font: 10px sans-serif;
+}
+
+.link {
+  fill: none;
+  stroke: #ccc;
+  stroke-width: 1.5px;
+}
+
+#total {
+  position: absolute;
+  z-index: 10;
+  top: 10px;
+  left: 10px;
+}
+
+#frontier {
+  position: absolute;
+  z-index: 10;
+  top: 40px;
+  left: 10px;
+}
+
+#buttons {
+  padding: 5px 30px;
+}
+
+</style>
+<body>
+  <div id="total">0</div>
+  <div id="frontier">0</div>
+  <div id="buttons">
+    <button onclick="unidirectional()">Uni</button>
+    <button onclick="bidirectional()">Bidirectional</button>
+  </div>
+  <div id="all">
+    <div id="up"></div>
+    <div id="down"></div>
+    <div id="dumb"></div>
+  </div>
+  <script src="d3.v3.min.js"></script>
+  <script src="vis.js"></script>
