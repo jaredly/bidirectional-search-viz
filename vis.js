@@ -1,5 +1,6 @@
 
 var frontierColor = 'lightblue'
+var connectorColor = 'green'
 
 function treeMeUp(target, upsidedown, fullHeight) {
 
@@ -42,7 +43,7 @@ function treeMeUp(target, upsidedown, fullHeight) {
 
   d3.select(self.frameElement).style("height", fullHeight + 'px')
 
-  var treeData = {"name": "hi", children: [], depth: 1}
+  var treeData = {"name": "hi", children: [], depth: 1, last: {awesome: true}}
 
   init(treeData)
 
@@ -69,9 +70,15 @@ function treeMeUp(target, upsidedown, fullHeight) {
         .attr("transform", function(d) { return "translate(" + source.x0 + "," + source.y0 + ")"; })
         .on("click", click);
 
+    var colorMe = function (d) {
+      return d.last ? "rgb(255, 22, 22)" :
+               (d.connector ? connectorColor :
+                 (d.frontier ? frontierColor : "#fff"));
+    }
+
     nodeEnter.append("circle")
         .attr("r", 1e-6)
-        .style("fill", function(d) { return d.last ? "rgb(255, 22, 22)" : (d.frontier ? frontierColor : "#fff"); });
+        .style("fill", colorMe)
 
     /*
     nodeEnter.append("text")
@@ -89,7 +96,7 @@ function treeMeUp(target, upsidedown, fullHeight) {
 
     nodeUpdate.select("circle")
         .attr("r", 15)
-        .style("fill", function(d) { return d.last ? "rgb(255, 22, 22)" : (d.frontier ? frontierColor : "#fff"); });
+        .style("fill", colorMe);
 
     /*
     nodeUpdate.select("text")
@@ -159,6 +166,7 @@ function treeMeUp(target, upsidedown, fullHeight) {
 }
 
 var children = [2, 3, 4, 2, 3, 2, 1]
+/*
 var grandTotal = 0
   , grandisplay = document.getElementById('total')
   , finalFrontier = 0
@@ -183,34 +191,43 @@ function incGrandTotal() {
   grandTotal += 1;
   grandisplay.innerHTML = grandTotal
 }
+*/
 
-function treeMaker(target, upsidedown, total, height) {
-  var data = treeMeUp(target, upsidedown, height)
+function treeMaker(target, opts) { // upsidedown, total, tracker, height, wait) {
+  var data = treeMeUp(target, opts.upsidedown, opts.height)
     , current = data.root
+    , total = opts.total
     , frontier = []
     , num = 0
+
+
   current.num = 0
+  current.final = true
   var ival = setInterval(function () {
     if (!current.children) current.children = []
-    var branch = upsidedown ? 2 : children[current.num] // parseInt(Math.random() * 6) + 1
+    var branch = opts.upsidedown ? 2 : children[current.num] // parseInt(Math.random() * 6) + 1
     if (current.children.length >= branch) {
       current.frontier = false
-      incFrontier(-1)
+      opts.tracker.incFrontier(-1)
       current = frontier.shift()
       if (!current.children) current.children = []
     }
     var node = {name: 'moon', frontier: true, children: [], depth: current.depth + 1, num: ++num}
-    incFrontier()
+    opts.tracker.incFrontier()
     total--;
-    incGrandTotal();
+    opts.tracker.incGrandTotal();
     if (total <= 0) {
-      node.last = {awesome: true}
+      if (opts.connect) {
+        node.connector = {awesome: true}
+      } else {
+        node.last = {awesome: true}
+      }
       clearInterval(ival)
     }
     current.children.push(node)
     frontier.push(node)
     data.update(current)
-  }, 200)
+  }, opts.wait || 400)
 }
 
 function div(cls, inner) {
@@ -233,26 +250,73 @@ function container() {
   }
 }
 
+function makeTracker(nodes) {
+  var total = 0
+  , frontier = 0
+  function updateFrontier() {
+    nodes.frontier.innerHTML = frontier
+  }
+  function updateTotal() {
+    nodes.total.innerHTML = total
+  }
+  return {
+    resetFrontier: function () {
+      frontier = 0
+      updateFrontier()
+    },
+    resetGrandTotal: function () {
+      total = 0
+      updateTotal()
+    },
+    incFrontier: function (by) {
+      frontier += by || 1
+      updateFrontier()
+    },
+    incGrandTotal: function () {
+      total += 1
+      updateTotal()
+    },
+  }
+}
+
 function bidirectional() {
-  resetFrontier()
-  resetGrandTotal()
   var nodes = container()
+  var tracker = makeTracker(nodes)
   var down = div('down')
   var up = div('up')
   nodes.main.appendChild(up)
   nodes.main.appendChild(down)
-  treeMaker(down, true, 15)
+  treeMaker(down, {
+    upsidedown: true,
+    total: 15,
+    connect: true,
+    tracker: tracker
+  })
   setTimeout(function () {
-    treeMaker(up, false, 15)
-  }, 100)
+    treeMaker(up, {
+      upsidedown: false,
+      total: 15,
+      connect: true,
+      tracker: tracker
+    })
+  }, 200)
 
   document.body.appendChild(nodes.main)
 }
 
 function unidirectional() {
-  resetFrontier()
-  resetGrandTotal()
-  treeMaker('#dumb', true, Math.pow(2, 7) + 10, 300)
+  var nodes = container()
+  var node = div('normal')
+  nodes.main.appendChild(node)
+  var tracker = makeTracker(nodes)
+  treeMaker(node, {
+    upsidedown: true,
+    total: Math.pow(2, 7) + 10,
+    tracker: tracker,
+    height: 300,
+    wait: 200
+  })
+  document.body.appendChild(nodes.main)
 }
 
 // bidirectional()

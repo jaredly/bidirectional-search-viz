@@ -22,6 +22,21 @@
   stroke-width: 1.5px;
 }
 
+body {
+  max-width: 900px;
+  margin: 50px auto;
+  box-shadow: 0 0 5px #777;
+  padding: 40px;
+}
+
+.total,
+.frontier {
+  font-size: 35px;
+  font-weight: bold;
+  color: rgb(0, 112, 255);
+  font-family: sans-serif;
+}
+
 .total {
   position: absolute;
   z-index: 10;
@@ -32,7 +47,7 @@
 .frontier {
   position: absolute;
   z-index: 10;
-  top: 40px;
+  top: 50px;
   left: 10px;
 }
 
@@ -40,18 +55,34 @@
   padding: 5px 30px;
 }
 
+.viz {
+  position: relative;
+  margin-bottom: 20px;
+  border-bottom: 5px solid #ccc;
+  padding-bottom: 20px;
+}
+
+button {
+  border: 1px solid #aaa;
+  background-color: #eee;
+  padding: 5px 15px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.title {
+  font-size: 2em;
+  font-weight: bold;
+  margin-left: 20px;
+  font-family: sans-serif;
+}
+
 </style>
 <body>
-  <div id="total">0</div>
-  <div id="frontier">0</div>
   <div id="buttons">
-    <button onclick="unidirectional()">Uni</button>
+    <button onclick="unidirectional()">Normal</button>
     <button onclick="bidirectional()">Bidirectional</button>
-  </div>
-  <div id="all">
-    <div id="up"></div>
-    <div id="down"></div>
-    <div id="dumb"></div>
+    <span class="title">Bidirectional Search Visualization</span>
   </div>
   <script src="d3.v3.min.js"></script>
   <script src="vis.js"></script>
